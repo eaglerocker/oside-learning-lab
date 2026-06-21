@@ -3,6 +3,7 @@
 Static GitHub Pages bundle containing:
 
 - Founder Skills Diagnostic
+- Google Business Profile Mastery
 - Google Local Services Ads Mastery Lab
 - Google Ads PPC Mastery System
 

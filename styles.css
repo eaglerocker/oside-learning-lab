@@ -65,7 +65,7 @@ h1 { margin-bottom: 22px; font-size: clamp(45px, 7vw, 82px); line-height: .99; l
 
 .paths {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 18px;
 }
 
@@ -82,6 +82,7 @@ h1 { margin-bottom: 22px; font-size: clamp(45px, 7vw, 82px); line-height: .99; l
 }
 
 .path-lsa { border-top-color: var(--gold); }
+.path-gbp { border-top-color: var(--green); }
 .path-ppc { border-top-color: var(--blue); }
 .number { color: var(--muted); font-size: 13px; font-weight: 850; letter-spacing: .12em; }
 .label { margin: 26px 0 6px; color: var(--muted); font-size: 12px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
