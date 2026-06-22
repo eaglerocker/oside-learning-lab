@@ -1,6 +1,7 @@
 (() => {
-  const KEY = "osideRoofingWebMastery.v1";
-  const modules = window.WEB_MODULES || [];
+  const config = window.MASTERY_CONFIG || {};
+  const KEY = config.storageKey || "osideRoofingWebMastery.v1";
+  const modules = window.MASTERY_MODULES || window.WEB_MODULES || [];
   const app = document.querySelector("#app");
   const saveStatus = document.querySelector("#save-status");
   const totalQuestions = modules.reduce((sum, item) => sum + item.questions.length, 0);
@@ -18,7 +19,7 @@
   };
   let state = load();
 
-  const labs = [
+  const labs = config.labs || [
     {
       id: "strategy-brief",
       title: "Roofing website strategy brief",
@@ -173,9 +174,9 @@
     app.innerHTML = `
       <section class="hero web-hero">
         <div class="hero-copy">
-          <p class="eyebrow">Oside Digital · Website delivery</p>
-          <h1>Master roofing website creation for customers, search engines, AI Overviews, and LLM discovery.</h1>
-          <p class="lede">Learn strategy, architecture, conversion copy, technical SEO, content, schema, performance, authority, AEO, measurement, and responsible delivery.</p>
+          <p class="eyebrow">${esc(config.heroEyebrow || "Oside Digital · Website delivery")}</p>
+          <h1>${esc(config.heroTitle || "Master roofing website creation for customers, search engines, AI Overviews, and LLM discovery.")}</h1>
+          <p class="lede">${esc(config.heroLede || "Learn strategy, architecture, conversion copy, technical SEO, content, schema, performance, authority, AEO, measurement, and responsible delivery.")}</p>
           <div class="button-row">
             <button id="continue-button" class="button" type="button">${learned || answeredCount() ? "Continue mastery path" : "Begin with Module 1"}</button>
             <button id="baseline-button" class="button button-secondary" type="button">Take baseline diagnostic</button>
@@ -189,7 +190,7 @@
             <div class="stat"><strong>${doneLabs}/8</strong><span>labs completed</span></div>
             <div class="stat"><strong>${answeredCount() ? `${result.percent}%` : "—"}</strong><span>diagnostic score</span></div>
           </div>
-          <p class="muted">Primary-source foundation reviewed June 21, 2026. The full baseline is optional for beginners; Module 1 is the recommended start.</p>
+          <p class="muted">${esc(config.foundationNote || "Primary-source foundation reviewed June 21, 2026. The full baseline is optional for beginners; Module 1 is the recommended start.")}</p>
         </aside>
       </section>
 
@@ -197,9 +198,9 @@
         <p class="eyebrow">The path</p>
         <h2>Learn → diagnose → operate → prove</h2>
         <div class="report-grid">
-          <article class="report-card"><h3>12 modules</h3><p class="muted">Current SEO, AI-search, crawler, schema, and web-quality guidance translated into delivery.</p></article>
+          <article class="report-card"><h3>12 modules</h3><p class="muted">${esc(config.modulesSummary || "Current SEO, AI-search, crawler, schema, and web-quality guidance translated into delivery.")}</p></article>
           <article class="report-card"><h3>120 questions</h3><p class="muted">Difficult scenarios with confidence scoring and written judgment cases.</p></article>
-          <article class="report-card"><h3>8 applied labs</h3><p class="muted">Strategy, architecture, page design, technical QA, AEO, measurement, rank grids, and capstone.</p></article>
+          <article class="report-card"><h3>8 applied labs</h3><p class="muted">${esc(config.labsSummary || "Strategy, architecture, page design, technical QA, AEO, measurement, rank grids, and capstone.")}</p></article>
         </div>
       </section>
 
@@ -604,6 +605,11 @@
           card.querySelector(".rank-top3").textContent = `${percent(3)}%`;
           card.querySelector(".rank-top10").textContent = `${percent(10)}%`;
           card.querySelector(".rank-missing").textContent = `${missing}%`;
+        } else {
+          const acquisition = Number(card.querySelector(".calc-acq").value) || 0;
+          const qualify = (Number(card.querySelector(".calc-qual").value) || 0) / 100;
+          const close = (Number(card.querySelector(".calc-close").value) || 0) / 100;
+          card.querySelector(".calc-result strong").textContent = `$${(acquisition * qualify * close).toFixed(2)}`;
         }
       };
       card.querySelectorAll(".calculator input").forEach(input => input.addEventListener("input", update));
@@ -624,13 +630,16 @@
   function reportData() {
     const results = modules.map(moduleItem => ({ module: moduleItem, ...moduleResult(moduleItem) }));
     const weakest = [...results].sort((a, b) => a.percent - b.percent);
+    const readinessGroups = config.readinessGroups || [
+      { key: "setup", title: "Ready to plan and build sites?", ids: ["strategy", "architecture", "ux-copy", "technical", "onpage-local"] },
+      { key: "operate", title: "Ready to deliver SEO/AEO?", ids: ["technical", "onpage-local", "content", "structured-media", "performance", "measurement-launch"] },
+      { key: "advise", title: "Ready to advise clients?", ids: ["strategy", "content", "authority", "aeo", "measurement-launch", "capstone"] }
+    ];
     return {
       overall: overall(),
       results,
       weakest,
-      setup: readiness(["strategy", "architecture", "ux-copy", "technical", "onpage-local"]),
-      operate: readiness(["technical", "onpage-local", "content", "structured-media", "performance", "measurement-launch"]),
-      advise: readiness(["strategy", "content", "authority", "aeo", "measurement-launch", "capstone"])
+      gates: readinessGroups.map(group => ({ ...group, result: readiness(group.ids) }))
     };
   }
 
@@ -638,7 +647,7 @@
     const data = reportData();
     app.innerHTML = `
       <header class="report-header">
-        <p class="eyebrow">Roofing Website SEO & AEO mastery report</p>
+        <p class="eyebrow">${esc(config.reportEyebrow || "Roofing Website SEO & AEO mastery report")}</p>
         <div class="report-hero">
           <div class="report-score"><strong>${answeredCount() ? `${data.overall.percent}%` : "—"}</strong><span>${answeredCount()} / ${totalQuestions} questions scored</span></div>
           <div>
@@ -653,9 +662,7 @@
       </header>
 
       <section class="report-grid">
-        ${readinessCard("Ready to plan and build sites?", data.setup)}
-        ${readinessCard("Ready to deliver SEO/AEO?", data.operate)}
-        ${readinessCard("Ready to advise clients?", data.advise)}
+        ${data.gates.map(gate => readinessCard(gate.title, gate.result)).join("")}
       </section>
 
       <section class="report-section">
@@ -710,7 +717,7 @@
     if (percent >= 90) return "Your judgment is client-ready. Keep current by reviewing official changes and operating real accounts.";
     if (percent >= 75) return "Your foundation is strong. Use the weakest domains and labs to close the remaining confidence gaps.";
     if (percent >= 60) return "You can reason through many situations, but blind spots still make unsupervised client advice risky.";
-    return "Treat this as a learning map. Study, drill, and retest before taking responsibility for spend.";
+    return "Treat this as a learning map. Study, drill, and retest before taking unsupervised client responsibility.";
   }
 
   function thirtyDayPlan(weakest) {
@@ -718,29 +725,28 @@
     return `
       <div class="plan-week"><h3>Days 1–7 · Foundation repair</h3><p>Study <strong>${esc(names[0])}</strong>. Complete its fieldwork and retake only that domain.</p></div>
       <div class="plan-week"><h3>Days 8–14 · Second constraint</h3><p>Study <strong>${esc(names[1])}</strong>. Complete the matching applied lab with a visible artifact.</p></div>
-      <div class="plan-week"><h3>Days 15–21 · Integrate</h3><p>Study <strong>${esc(names[2])}</strong> and <strong>${esc(names[3])}</strong>. Complete a page build, source-readiness audit, rank-grid diagnosis, and one decision log.</p></div>
+      <div class="plan-week"><h3>Days 15–21 · Integrate</h3><p>Study <strong>${esc(names[2])}</strong> and <strong>${esc(names[3])}</strong>. ${esc(config.integrationPractice || "Complete a page build, source-readiness audit, rank-grid diagnosis, and one decision log.")}</p></div>
       <div class="plan-week"><h3>Days 22–30 · Prove</h3><p>Complete the capstone audit, record the five-minute walkthrough, get teach-back feedback, and retake all weak domains.</p></div>
     `;
   }
 
   function exportReport(data) {
-    let md = `# Oside Roofing Website SEO & AEO Mastery Report\n\nExported ${new Date().toLocaleString()}\n\n`;
+    let md = `# ${config.reportTitle || "Oside Roofing Website SEO & AEO Mastery Report"}\n\nExported ${new Date().toLocaleString()}\n\n`;
     md += `## Overall\n\n**${data.overall.percent}% — ${data.overall.band}**\n\n`;
     md += `Modules studied: ${state.completedLessons.length}/12 · Labs: ${state.completedLabs.length}/8 · Domains tested: ${state.completedDiagnostic.length}/12\n\n`;
     md += "## Readiness\n\n| Decision | Result | Average |\n|---|---:|---:|\n";
-    md += `| Ready to plan and build sites? | ${data.setup.status} | ${data.setup.average}% |\n`;
-    md += `| Ready to deliver SEO/AEO? | ${data.operate.status} | ${data.operate.average}% |\n`;
-    md += `| Ready to advise clients? | ${data.advise.status} | ${data.advise.average}% |\n\n`;
+    data.gates.forEach(gate => { md += `| ${gate.title} | ${gate.result.status} | ${gate.result.average}% |\n`; });
+    md += "\n";
     md += "## Domain scores\n\n| Domain | Score | Band | Blind spots |\n|---|---:|---|---:|\n";
     data.results.forEach(item => { md += `| ${item.module.title.replace(/^\d+\.\s*/, "")} | ${item.percent}% | ${item.band} | ${item.blindSpots.length} |\n`; });
     md += "\n## 30-day focus\n\n";
     data.weakest.slice(0, 4).forEach((item, index) => { md += `${index + 1}. ${item.module.title.replace(/^\d+\.\s*/, "")} — ${item.percent}%\n`; });
-    md += "\n## Primary-source reminder\n\nRecheck current Google Search Central and crawler documentation before changing a live site: https://developers.google.com/search/docs\n";
+    md += `\n## Primary-source reminder\n\n${config.sourceReminder || "Recheck current Google Search Central and crawler documentation before changing a live site: https://developers.google.com/search/docs"}\n`;
     const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `oside-roofing-web-seo-aeo-mastery-${new Date().toISOString().slice(0, 10)}.md`;
+    anchor.download = `${config.reportFilename || "oside-roofing-web-seo-aeo-mastery"}-${new Date().toISOString().slice(0, 10)}.md`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -748,7 +754,7 @@
   }
 
   function reset() {
-    if (!window.confirm("Clear all roofing website learning, lab, and diagnostic progress?")) return;
+    if (!window.confirm(config.resetPrompt || "Clear all roofing website learning, lab, and diagnostic progress?")) return;
     localStorage.removeItem(KEY);
     state = { ...defaultState };
     render();
