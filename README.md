@@ -2,7 +2,7 @@
 
 Static GitHub Pages bundle containing:
 
-- Founder Skills Diagnostic
+- Founder Skills Mastery
 - Roofing Website SEO & AEO Mastery
 - Home Services Landing Page CRO & Attribution Mastery
 - Google Business Profile Mastery
