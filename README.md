@@ -6,6 +6,7 @@ Static GitHub Pages bundle containing:
 - Roofing Website SEO & AEO Mastery
 - Home Services Landing Page CRO & Attribution Mastery
 - Forms, Routing & Attribution Mastery
+- Keyword Research & Search Demand Mastery
 - Google Business Profile Mastery
 - Google Local Services Ads Mastery Lab
 - Google Ads PPC Mastery System
