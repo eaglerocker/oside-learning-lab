@@ -754,7 +754,10 @@
     render();
   }
 
-  document.querySelector("#home-button").addEventListener("click", () => setView("dashboard"));
+  const homeButton = document.querySelector("#home-button");
+  if (homeButton && !homeButton.matches("a[href]")) {
+    homeButton.addEventListener("click", () => setView("dashboard"));
+  }
   document.querySelectorAll(".top-nav button").forEach(button => button.addEventListener("click", () => setView(button.dataset.view)));
   render();
 })();
